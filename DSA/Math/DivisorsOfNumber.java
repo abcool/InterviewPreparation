@@ -14,6 +14,10 @@ public class DivisorsOfNumber {
         for(;i*i<n;i++){
             if(n%i == 0) System.out.println(i);
         }
+        // this is to prevent duplicates when pair (n,m) has difference of only 1. 
+        // For e.g. number 6 and 2 & 3 will be printed twice
+       if(i-(n/i)==1) i--;
+       
         for(;i>=1;i--){
             if(n%i == 0) System.out.println(n/i);
         }
