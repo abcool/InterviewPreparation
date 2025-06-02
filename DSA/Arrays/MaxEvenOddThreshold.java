@@ -35,7 +35,7 @@ public class MaxEvenOddThreshold {
                 curr++;
             for(int j=i+1;j<arr.length;j++){
                 if(arr[j]>threshold || (isEven(arr[j]) & isEven(arr[j-1])) || ( !isEven(arr[j]) & !isEven(arr[j-1]) )){
-                    curr=0;break;
+                    break;
                 }
                 curr++;
                 ans = Math.max(ans, curr);

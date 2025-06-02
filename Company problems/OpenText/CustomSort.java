@@ -15,6 +15,20 @@ public class CustomSort {
         System.out.println(Arrays.toString(result));
     }
 
+    // CustomSort optimized approach
+
+    public static int[] customSortOptimized(int[] arr, int k){
+	    Arrays.sort(arr);
+	    int[] ans = new int[arr.length];
+	    for(int i=0;i<k;i++){
+	        ans[i]=arr[i];
+	    }
+	    for(int i=arr.length-1,j=k;i>=k;i--,j++){
+	        ans[j]=arr[i];
+	    }
+	    return ans;
+	}
+
     public static int[] customSort(int[] arr, int k) {
         if (k > arr.length) {
             throw new IllegalArgumentException("k cannot be greater than the length of the array");

@@ -39,6 +39,6 @@ public class ArrayLeaders{
         return ans;
     }
     private static boolean isLeader(int leader, int n){
-       return n>=leader?true:false;
+       return n>=leader;
     }
 }
