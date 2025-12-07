@@ -7,8 +7,8 @@ import edu.learning.behaviour.quack.Mute;
 public class WoodenDuck extends Duck {
 
     public WoodenDuck(){
-        quackBehaviour = new Mute();
-        flyBehaviour = new FlyWithRocket();
+        setQuackBehaviour(new Mute());
+        setFlyBehaviour(new FlyWithRocket());
     }
 
     @Override

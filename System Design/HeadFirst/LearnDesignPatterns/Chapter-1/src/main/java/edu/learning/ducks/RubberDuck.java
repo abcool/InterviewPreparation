@@ -7,8 +7,8 @@ import edu.learning.behaviour.quack.Squeak;
 public class RubberDuck extends Duck {
 
     public RubberDuck(){
-        quackBehaviour = new Squeak();
-        flyBehaviour = new NoFly();
+        setQuackBehaviour(new Squeak());
+        setFlyBehaviour(new NoFly());
     }
 
     @Override

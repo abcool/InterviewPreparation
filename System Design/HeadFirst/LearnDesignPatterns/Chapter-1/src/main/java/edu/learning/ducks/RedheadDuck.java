@@ -7,8 +7,8 @@ import edu.learning.behaviour.quack.Quack;
 public class RedheadDuck extends Duck {
 
     public RedheadDuck(){
-        quackBehaviour = new Quack();
-        flyBehaviour = new FlyWithWings();
+        setQuackBehaviour(new Quack());
+        setFlyBehaviour(new FlyWithWings());
     }
 
     public void display(){

@@ -7,8 +7,8 @@ import edu.learning.behaviour.quack.Quack;
 public class MallardDuck extends Duck {
 
     public MallardDuck(){
-        quackBehaviour = new Quack();
-        flyBehaviour = new FlyWithWings();
+        setFlyBehaviour(new FlyWithWings());
+        setQuackBehaviour(new Quack());
     }
 
     @Override

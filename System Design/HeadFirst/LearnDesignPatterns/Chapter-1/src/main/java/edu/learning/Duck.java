@@ -2,8 +2,8 @@ package edu.learning;
 
 public abstract class Duck {
 
-    public QuackBehaviour quackBehaviour;
-    public FlyBehaviour flyBehaviour;
+    private QuackBehaviour quackBehaviour;
+    private FlyBehaviour flyBehaviour;
 
     public Duck(){}
 
@@ -20,4 +20,10 @@ public abstract class Duck {
         quackBehaviour.quack();
     }
 
+    public void setFlyBehaviour(FlyBehaviour flyBehaviour){
+        this.flyBehaviour = flyBehaviour;
+    }
+    public  void setQuackBehaviour(QuackBehaviour quackBehaviour){
+        this.quackBehaviour = quackBehaviour;
+    }
 }
