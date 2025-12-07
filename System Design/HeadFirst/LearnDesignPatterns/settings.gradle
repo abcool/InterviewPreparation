@@ -1,0 +1,2 @@
+rootProject.name = 'LearnDesignPatterns'
+include 'Chapter-1'
