@@ -17,6 +17,5 @@ public class DuckSimulator {
        rubberDuck.display();
        rubberDuck.quack();
        rubberDuck.swim();
-       rubberDuck.fly();
     }
 }
