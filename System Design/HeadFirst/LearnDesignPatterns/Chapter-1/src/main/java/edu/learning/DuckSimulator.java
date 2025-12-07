@@ -8,8 +8,10 @@ public class DuckSimulator {
        mallardDuck.display();
        mallardDuck.quack();
        mallardDuck.swim();
+       mallardDuck.fly();
        redheadDuck.display();
        redheadDuck.swim();
        redheadDuck.quack();
+       redheadDuck.fly();
     }
 }
