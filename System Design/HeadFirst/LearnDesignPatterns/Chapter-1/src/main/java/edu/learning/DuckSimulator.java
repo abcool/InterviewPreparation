@@ -3,8 +3,9 @@ package edu.learning;
 public class DuckSimulator {
     public static void main(String[] args) {
         System.out.println(" Starting duck similator ");
-       MallardDuck mallardDuck = new MallardDuck();
-       RedheadDuck redheadDuck = new RedheadDuck();
+       var mallardDuck = new MallardDuck();
+       var redheadDuck = new RedheadDuck();
+       var rubberDuck = new RubberDuck();
        mallardDuck.display();
        mallardDuck.quack();
        mallardDuck.swim();
@@ -13,5 +14,9 @@ public class DuckSimulator {
        redheadDuck.swim();
        redheadDuck.quack();
        redheadDuck.fly();
+       rubberDuck.display();
+       rubberDuck.quack();
+       rubberDuck.swim();
+       rubberDuck.fly();
     }
 }
