@@ -1,10 +1,23 @@
 package edu.learning;
 
-public class Duck {
+public abstract class Duck {
+
+    public QuackBehaviour quackBehaviour;
+    public FlyBehaviour flyBehaviour;
+
+    public Duck(){}
 
     public void swim(){
         System.out.println("Duck swims");
     }
-    public void display(){}
+    public abstract void display();
+
+    public void performFly(){
+        flyBehaviour.fly();
+    }
+
+    public void performQuack(){
+        quackBehaviour.quack();
+    }
 
 }
