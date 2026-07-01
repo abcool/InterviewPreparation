@@ -1,0 +1,715 @@
+\<\!DOCTYPE html\>
+
+\<html lang="en"\>
+\<head\>
+\<meta charset="UTF-8"\>
+\<meta name="viewport" content="width=device-width, initial-scale=1.0"\>
+\<title\>Interactive Guide: Java 7 to Java 17 Evolution\</title\>
+\<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"\>\</script\>
+\<script src="[https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js](https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js)"\>\</script\>
+\<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)"\>
+\<link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin\>
+\<link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700\&family=Roboto+Mono:wght@400;500\&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap)" rel="stylesheet"\>
+\<\!-- Visualization & Content Choices:
+\- Report Info: Java 8-17 Features Table -\> Goal: Compare evolution -\> Viz: Interactive horizontal timeline (HTML/CSS/JS) -\> Interaction: Click a version to see its key features in a detail panel -\> Justification: More engaging and less overwhelming than a large static table.
+\- Report Info: Collection performance data -\> Goal: Compare characteristics -\> Viz: Bar Chart (Chart.js) -\> Interaction: Hover over bars to see complexity details (O(1), O(log n), etc.) -\> Justification: Visually quantifies performance differences, making them easier to grasp than text.
+\- Report Info: JVM Memory Architecture -\> Goal: Inform structure -\> Viz: Diagram of Heap/Stack/Metaspace (HTML/CSS Flexbox) -\> Interaction: Hover over a memory area to highlight it and see a description -\> Justification: Translates abstract concepts into a clear spatial model.
+\- Report Info: Concurrency challenges (Deadlock) -\> Goal: Explain a process -\> Viz: Animated diagram with styled divs (HTML/CSS/JS) -\> Interaction: A 'Run' button triggers an animation showing two threads locking resources in a conflicting order -\> Justification: Visually demonstrates the abstract concept of circular waits, making it easier to understand than a static diagram.
+\- Report Info: Java Code Snippets -\> Goal: Show implementation -\> Viz: Styled \<pre\>\<code\> blocks (HTML/CSS) -\> Interaction: A 'Copy' button on each block -\> Justification: Provides clean, readable code examples with practical utility.
+\- Library/Method: All charts use Chart.js (Canvas). All diagrams and visual structures are built with semantic HTML and styled with Tailwind CSS. All interactions are handled by vanilla JavaScript.
+\--\>
+\<style\>
+body { font-family: 'Inter', sans-serif; background-color: \#f8f9fa; }
+.font-mono { font-family: 'Roboto Mono', monospace; }
+.nav-link { transition: color 0.3s, border-bottom-color 0.3s; }
+.nav-link-active { color: \#2563eb; border-bottom-color: \#2563eb; }
+.content-section { display: none; }
+.content-section.active { display: block; }
+.tab-button { transition: background-color 0.3s, color 0.3s; }
+.tab-button-active { background-color: \#2563eb; color: white; }
+.code-block { background-color: \#1e293b; color: \#e2e8f0; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; }
+.code-keyword { color: \#7dd3fc; }
+.code-string { color: \#a5b4fc; }
+.code-comment { color: \#64748b; }
+.code-type { color: \#6ee7b7; }
+.code-number { color: \#f87171; }
+.chart-container { position: relative; width: 100%; max-width: 700px; margin: 2rem auto; height: 350px; max-height: 40vh; }
+.timeline-item { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.timeline-item:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+.fade-in { animation: fadeIn 0.5s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+\</style\>
+\</head\>
+\<body class="bg-gray-50 text-gray-800"\>
+
+```
+<header id="main-header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <span class="font-bold text-xl text-blue-600">Java 7 ➔ 17</span>
+            </div>
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <a href="#timeline" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Timeline</a>
+                    <a href="#core-concepts" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Core Concepts</a>
+                    <a href="#concurrency" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Concurrency</a>
+                    <a href="#case-study" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Case Study</a>
+                </div>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <span class="sr-only">Open main menu</span>
+                    <svg class="block h-6 w-6" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div id="mobile-menu" class="md:hidden hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="#timeline" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">Timeline</a>
+            <a href="#core-concepts" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">Core Concepts</a>
+            <a href="#concurrency" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">Concurrency</a>
+            <a href="#case-study" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">Case Study</a>
+        </div>
+    </div>
+</header>
+
+<main class="container mx-auto p-4 sm:p-6 lg:p-8">
+    
+    <section id="timeline" class="content-section active">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">The Evolution from Java 7 to 17</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">A decade of innovation, from functional programming to platform hardening. Click on a version to explore its landmark features.</p>
+        </div>
+        <div class="relative">
+            <div class="absolute left-1/2 h-full w-0.5 bg-gray-300 hidden sm:block"></div>
+            <div class="space-y-12 sm:space-y-0 sm:grid sm:grid-cols-1">
+                
+            </div>
+        </div>
+        <div id="feature-details-panel" class="mt-12 hidden"></div>
+    </section>
+
+    <section id="core-concepts" class="content-section">
+         <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Core Concept Deep Dive</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Explore the foundational pillars of modern Java applications: the Collections Framework and Memory Management.</p>
+        </div>
+        <div class="flex justify-center mb-8 border-b border-gray-200">
+            <button data-tab="collections" class="tab-button px-4 py-2 text-sm font-medium border-b-2 border-transparent">Collections Framework</button>
+            <button data-tab="memory" class="tab-button px-4 py-2 text-sm font-medium border-b-2 border-transparent">Memory Management</button>
+        </div>
+        <div id="core-concepts-content" class="fade-in"></div>
+    </section>
+
+    <section id="concurrency" class="content-section">
+         <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Mastering Concurrency</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">From fundamental threads to advanced utilities, understand how Java handles parallel execution and learn to avoid common pitfalls.</p>
+        </div>
+        <div class="flex justify-center mb-8 border-b border-gray-200">
+            <button data-tab="concurrency-basics" class="tab-button px-4 py-2 text-sm font-medium border-b-2 border-transparent">Basics &amp; Utilities</button>
+            <button data-tab="concurrency-challenges" class="tab-button px-4 py-2 text-sm font-medium border-b-2 border-transparent">Challenges</button>
+        </div>
+        <div id="concurrency-content" class="fade-in"></div>
+    </section>
+
+    <section id="case-study" class="content-section">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">E-Commerce Platform Case Study</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">See how Java 17 features, collections, and concurrency patterns are applied to build a modern, scalable online shopping application.</p>
+        </div>
+        <div id="case-study-content" class="fade-in"></div>
+    </section>
+    
+</main>
+
+<script>
+    const appData = {
+        timeline: [
+            { version: '8', lts: true, year: '2014', title: 'The Functional Revolution', features: ['Lambda Expressions', 'Stream API', 'Optional Class', 'java.time API', 'Default Methods'] },
+            { version: '9', lts: false, year: '2017', title: 'Modularity Arrives', features: ['Module System (JPMS)', 'JShell (REPL)', 'Convenience Factory Methods for Collections', 'Private Interface Methods'] },
+            { version: '10', lts: false, year: '2018', title: 'Type Inference', features: ['Local-Variable Type Inference (var)', 'Enhanced Immutable Collections', 'Parallel Full GC for G1'] },
+            { version: '11', lts: true, year: '2018', title: 'LTS with New Standards', features: ['Standardized HTTP Client', 'New String & File Methods', 'Local-Variable Syntax for Lambdas (var)', 'Epsilon & ZGC (Experimental)'] },
+            { version: '12', lts: false, year: '2019', title: 'Language Refinements', features: ['Switch Expressions (Preview)', 'Collectors.teeing()', 'Compact Number Formatting'] },
+            { version: '13', lts: false, year: '2019', title: 'Text Blocks & More', features: ['Text Blocks (Preview)', 'Switch Expressions (yield)', 'ZGC: Uncommit Unused Memory'] },
+            { version: '14', lts: false, year: '2020', title: 'Data-Oriented Programming', features: ['Records (Preview)', 'Pattern Matching for instanceof (Preview)', 'Helpful NullPointerExceptions'] },
+            { version: '15', lts: false, year: '2020', title: 'Production-Ready Features', features: ['Text Blocks (Standard)', 'Sealed Classes (Preview)', 'ZGC & Shenandoah (Production)', 'Hidden Classes'] },
+            { version: '16', lts: false, year: '2021', title: 'Finalizing the Previews', features: ['Records (Standard)', 'Pattern Matching for instanceof (Standard)', 'Stream.toList()', 'jpackage Tool'] },
+            { version: '17', lts: true, year: '2021', title: 'The Modern LTS', features: ['Sealed Classes (Standard)', 'Pattern Matching for switch (Preview)', 'Strongly Encapsulate JDK Internals', 'Enhanced PRNGs'] }
+        ],
+        featureDetails: {
+            'Lambda Expressions': {
+                desc: "Provide a clear and concise way to represent one method interface using an expression. Lambdas are a cornerstone of functional programming in Java, enabling you to pass behavior as an argument to methods.",
+                code: `
+```
+
+\<span class="code-comment"\>// Sorting a list of products by price\</span\>
+\<span class="code-type"\>List\<Product\>\</span\> products = getProductList();
+\<span class="code-comment"\>// Pre-Java 8\</span\>
+\<span class="code-type"\>Collections\</span\>.sort(products, \<span class="code-keyword"\>new\</span\> \<span class="code-type"\>Comparator\<Product\>\</span\>() {
+\<span class="code-keyword"\>public int\</span\> compare(\<span class="code-type"\>Product\</span\> p1, \<span class="code-type"\>Product\</span\> p2) {
+\<span class="code-keyword"\>return\</span\> \<span class="code-type"\>Double\</span\>.compare(p1.getPrice(), p2.getPrice());
+}
+});
+\<span class="code-comment"\>// Java 8+ with Lambda\</span\>
+products.sort((p1, p2) -\> \<span class="code-type"\>Double\</span\>.compare(p1.getPrice(), p2.getPrice()));`}, 'Stream API': { desc: "A powerful API for processing sequences of elements. Streams support functional-style operations on elements, such as map-reduce transformations, and can be executed sequentially or in parallel.", code:`
+\<span class="code-type"\>List\<Product\>\</span\> cartItems = getCartItems();
+\<span class="code-comment"\>// Calculate total value of electronic items in the cart\</span\>
+\<span class="code-type"\>double\</span\> total = cartItems.stream()
+.filter(p -\> \<span class="code-string"\>"Electronics"\</span\>.equals(p.getCategory()))
+.mapToDouble(\<span class="code-type"\>Product\</span\>::getPrice)
+.sum();`}, 'Records (Standard)': { desc: "A concise syntax for declaring classes that are transparent holders for immutable data. Records automatically provide implementations for constructors, accessors,`equals()` ,  `hashCode()` , and  `toString()` .", code:  `
+\<span class="code-comment"\>// Pre-Java 16 POJO (Plain Old Java Object)\</span\>
+\<span class="code-keyword"\>public final class\</span\> \<span class="code-type"\>ProductDetailsPojo\</span\> {
+\<span class="code-keyword"\>private final\</span\> \<span class="code-type"\>String\</span\> name;
+\<span class="code-keyword"\>private final\</span\> \<span class="code-type"\>double\</span\> price;
+\<span class="code-comment"\>// ... constructor, getters, equals, hashCode, toString ...\</span\>
+}
+
+\<span class="code-comment"\>// Java 16+ Record\</span\>
+\<span class="code-keyword"\>public record\</span\> \<span class="code-type"\>ProductDetails\</span\>(\<span class="code-type"\>String\</span\> name, \<span class="code-type"\>double\</span\> price) {}`  }, 'Pattern Matching for instanceof (Standard)': { desc: "Reduces boilerplate by combining a type check ( `instanceof` ) with a conditional type cast. If the check is successful, a binding variable of the target type is created and is in scope.", code:  `
+\<span class="code-type"\>Object\</span\> obj = getPaymentMethod();
+\<span class="code-comment"\>// Pre-Java 16\</span\>
+\<span class="code-keyword"\>if\</span\> (obj \<span class="code-keyword"\>instanceof\</span\> \<span class="code-type"\>CreditCard\</span\>) {
+\<span class="code-type"\>CreditCard\</span\> card = (\<span class="code-type"\>CreditCard\</span\>) obj;
+processCard(card);
+}
+
+\<span class="code-comment"\>// Java 16+\</span\>
+\<span class="code-keyword"\>if\</span\> (obj \<span class="code-keyword"\>instanceof\</span\> \<span class="code-type"\>CreditCard\</span\> card) {
+processCard(card); \<span class="code-comment"\>// card is already cast and in scope\</span\>
+}`}, 'Sealed Classes (Standard)': { desc: "Allows classes and interfaces to restrict which other classes or interfaces may extend or implement them. This provides finer control over inheritance, enabling more precise domain modeling.", code:`
+\<span class="code-keyword"\>public sealed interface\</span\> \<span class="code-type"\>PaymentMethod\</span\>
+\<span class="code-keyword"\>permits\</span\> \<span class="code-type"\>CreditCard\</span\>, \<span class="code-type"\>PayPal\</span\>, \<span class="code-type"\>GiftCard\</span\> { ... }
+
+\<span class="code-keyword"\>public final class\</span\> \<span class="code-type"\>CreditCard\</span\> \<span class="code-keyword"\>implements\</span\> \<span class="code-type"\>PaymentMethod\</span\> { ... }
+\<span class="code-keyword"\>public final class\</span\> \<span class="code-type"\>PayPal\</span\> \<span class="code-keyword"\>implements\</span\> \<span class="code-type"\>PaymentMethod\</span\> { ... }
+\<span class="code-keyword"\>public non-sealed class\</span\> \<span class="code-type"\>GiftCard\</span\> \<span class="code-keyword"\>implements\</span\> \<span class="code-type"\>PaymentMethod\</span\> { ... }
+\<span class="code-comment"\>// No other classes can directly implement PaymentMethod\</span\>`} }, collections: { content:`
+\<div class="grid md:grid-cols-2 gap-8 items-start"\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Collections Framework Hierarchy\</h3\>
+\<p class="text-gray-600 mb-6"\>The Java Collections Framework provides a unified architecture for representing and manipulating groups of objects. It is built upon a set of core interfaces that define different types of collections. Understanding this hierarchy is key to selecting the right tool for the job.\</p\>
+\<div class="space-y-4"\>
+\<div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500"\>
+\<h4 class="font-bold text-lg"\>Collection\<E\>\</h4\>
+\<p class="text-sm text-gray-600"\>The root interface. Represents a group of objects.\</p\>
+\</div\>
+\<div class="ml-6 space-y-4"\>
+\<div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500"\>
+\<h4 class="font-bold text-lg"\>List\<E\>\</h4\>
+\<p class="text-sm text-gray-600"\>An ordered collection (sequence). Allows duplicates. Access by integer index.\</p\>
+\</div\>
+\<div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500"\>
+\<h4 class="font-bold text-lg"\>Set\<E\>\</h4\>
+\<p class="text-sm text-gray-600"\>A collection that contains no duplicate elements.\</p\>
+\</div\>
+\<div class="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500"\>
+\<h4 class="font-bold text-lg"\>Queue\<E\>\</h4\>
+\<p class="text-sm text-gray-600"\>A collection used to hold elements prior to processing. Typically FIFO (First-In, First-Out).\</p\>
+\</div\>
+\</div\>
+\<div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500"\>
+\<h4 class="font-bold text-lg"\>Map\<K, V\>\</h4\>
+\<p class="text-sm text-gray-600"\>An object that maps keys to values. Not technically a Collection, but part of the framework.\</p\>
+\</div\>
+\</div\>
+\</div\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Implementation Performance\</h3\>
+\<p class="text-gray-600 mb-6"\>Choosing the right implementation has a significant impact on performance. This chart compares the average time complexity for common operations across key implementations.\</p\>
+\<div class="chart-container bg-white p-4 rounded-lg shadow"\>
+\<canvas id="collectionsChart"\>\</canvas\>
+\</div\>
+\</div\>
+\</div\>` , chartData: { labels: ['ArrayList', 'LinkedList', 'HashSet', 'TreeSet', 'HashMap', 'TreeMap'], datasets: [ { label: 'Add', data: [1.5, 1, 1, 2, 1, 2], backgroundColor: 'rgba(54, 162, 235, 0.6)' }, { label: 'Get/Contains', data: [1, 1.5, 1, 2, 1, 2], backgroundColor: 'rgba(75, 192, 192, 0.6)' }, { label: 'Remove', data: [1.5, 1, 1, 2, 1, 2], backgroundColor: 'rgba(255, 99, 132, 0.6)' } ], // 1: O(1), 1.5: O(n), 2: O(log n) - using numeric values for charting tooltips: { '1': 'O(1) - Constant Time', '1.5': 'O(n) - Linear Time', '2': 'O(log n) - Logarithmic Time' } } }, memory: { content:  `
+\<div class="grid md:grid-cols-2 gap-8 items-start"\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>JVM Memory Architecture\</h3\>
+\<p class="text-gray-600 mb-6"\>The JVM organizes memory into several distinct areas. Objects live on the Heap, method calls and local variables live on the Stack for each thread, and class metadata resides in Metaspace.\</p\>
+\<div class="bg-white p-4 rounded-lg shadow space-y-2"\>
+\<div class="font-bold text-center text-lg"\>JVM Memory\</div\>
+\<div class="flex flex-col md:flex-row gap-2"\>
+\<div class="flex-1 p-3 bg-blue-100 rounded text-center" title="Each thread gets its own stack. Stores local variables and method call information. Fast LIFO access."\>
+Stack
+\</div\>
+\<div class="flex-1 p-3 bg-red-100 rounded text-center" title="Each thread gets its own stack. Stores local variables and method call information. Fast LIFO access."\>
+Stack
+\</div\>
+\<div class="flex-1 p-3 bg-green-100 rounded text-center" title="Each thread gets its own stack. Stores local variables and method call information. Fast LIFO access."\>
+Stack
+\</div\>
+\</div\>
+\<div class="p-3 bg-purple-100 rounded" title="Shared by all threads. Stores class definitions, method data, and static variables. Located in native memory since Java 8."\>
+\<h4 class="font-semibold text-center"\>Metaspace\</h4\>
+\</div\>
+\<div class="p-3 bg-yellow-100 rounded" title="Shared by all threads. This is where all objects and arrays are allocated. Managed by the Garbage Collector."\>
+\<h4 class="font-semibold text-center mb-2"\>Heap\</h4\>
+\<div class="flex gap-2"\>
+\<div class="flex-1 p-2 bg-yellow-200 rounded text-center" title="For newly created, short-lived objects. Sub-divided into Eden and Survivor spaces."\>
+Young Gen
+\</div\>
+\<div class="flex-[2] p-2 bg-yellow-300 rounded text-center" title="For long-lived objects that have survived multiple garbage collections in the Young Generation."\>
+Old Gen (Tenured)
+\</div\>
+\</div\>
+\</div\>
+\</div\>
+\</div\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Garbage Collector Comparison\</h3\>
+\<p class="text-gray-600 mb-6"\>Java has evolved its Garbage Collectors to cater to different needs, balancing throughput and latency. G1 is the modern default, while ZGC offers ultra-low pause times for large-heap applications.\</p\>
+\<div class="chart-container bg-white p-4 rounded-lg shadow"\>
+\<canvas id="gcChart"\>\</canvas\>
+\</div\>
+\</div\>
+\</div\>`}, concurrencyBasics: { content:`
+\<div class="grid md:grid-cols-2 gap-8 items-start"\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Thread Lifecycle\</h3\>
+\<p class="text-gray-600 mb-6"\>A Java thread transitions through several states from its creation to termination. Understanding this lifecycle is key to debugging and managing concurrent applications.\</p\>
+\<div class="bg-white p-4 rounded-lg shadow"\>
+\<div class="relative flex flex-wrap justify-center items-center gap-4 text-sm font-semibold"\>
+\<div class="p-3 bg-green-200 rounded-lg"\>NEW\</div\>
+\<div class="text-gray-500"\>→ start() →\</div\>
+\<div class="p-3 bg-blue-200 rounded-lg"\>RUNNABLE\</div\>
+\<div class="text-gray-500"\>→ Gained CPU →\</div\>
+\<div class="p-3 bg-yellow-200 rounded-lg"\>RUNNING\</div\>
+\<div class="absolute top-full w-full mt-4 flex justify-around"\>
+\<div class="flex flex-col items-center"\>
+\<div class="text-gray-500"\>↓ wait(), sleep(), join()\</div\>
+\<div class="p-3 bg-orange-200 rounded-lg mt-1"\>WAITING/TIMED\_WAITING\</div\>
+\</div\>
+\<div class="flex flex-col items-center"\>
+\<div class="text-gray-500"\>↓ Awaiting Lock\</div\>
+\<div class="p-3 bg-red-200 rounded-lg mt-1"\>BLOCKED\</div\>
+\</div\>
+\</div\>
+\<div class="w-full text-center mt-24 text-gray-500"\>... → `run()` completes →\</div\>
+\<div class="p-3 bg-gray-300 rounded-lg"\>TERMINATED\</div\>
+\</div\>
+\</div\>
+\</div\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Advanced Utilities\</h3\>
+\<p class="text-gray-600 mb-6"\>The \<code\>java.util.concurrent\</code\> package provides high-level utilities that abstract away complex synchronization logic, making concurrent programming safer and easier.\</p\>
+\<ul class="space-y-3"\>
+\<li class="bg-white p-3 rounded-lg shadow"\>\<strong class="text-blue-600"\>ExecutorService:\</strong\> Manages a pool of threads to run tasks asynchronously.\</li\>
+\<li class="bg-white p-3 rounded-lg shadow"\>\<strong class="text-blue-600"\>CompletableFuture:\</strong\> For composable asynchronous programming, allowing you to chain tasks without blocking.\</li\>
+\<li class="bg-white p-3 rounded-lg shadow"\>\<strong class="text-blue-600"\>Semaphore:\</strong\> Limits the number of threads that can access a resource, like a connection pool.\</li\>
+\<li class="bg-white p-3 rounded-lg shadow"\>\<strong class="text-blue-600"\>CountDownLatch:\</strong\> Allows threads to wait until a set of operations completes.\</li\>
+\</ul\>
+\</div\>
+\</div\>
+`}, concurrencyChallenges: { content:`
+\<div class="grid md:grid-cols-2 gap-8 items-start"\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Deadlock Demonstration\</h3\>
+\<p class="text-gray-600 mb-4"\>A deadlock occurs when two threads are blocked forever, each waiting for the other. This happens when they try to acquire locks on multiple resources in a different order. The key to prevention is a consistent lock acquisition order.\</p\>
+\<div class="bg-white p-4 rounded-lg shadow"\>
+\<div class="flex justify-around items-center h-48 relative"\>
+\<div class="text-center"\>
+\<div class="font-bold"\>Thread A\</div\>
+\<div id="threadA" class="w-16 h-16 bg-blue-300 rounded-full transition-all duration-500"\>\</div\>
+\</div\>
+\<div class="text-center"\>
+\<div class="font-bold"\>Resource 1\</div\>
+\<div id="res1" class="w-12 h-12 bg-gray-700 rounded-md text-white flex items-center justify-center"\>Lock\</div\>
+\</div\>
+\<div class="text-center"\>
+\<div class="font-bold"\>Resource 2\</div\>
+\<div id="res2" class="w-12 h-12 bg-gray-700 rounded-md text-white flex items-center justify-center"\>Lock\</div\>
+\</div\>
+\<div class="text-center"\>
+\<div class="font-bold"\>Thread B\</div\>
+\<div id="threadB" class="w-16 h-16 bg-red-300 rounded-full transition-all duration-500"\>\</div\>
+\</div\>
+\</div\>
+\<div id="deadlock-status" class="mt-4 text-center font-semibold h-6"\>\</div\>
+\<button id="run-deadlock-btn" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mt-4"\>Run Simulation\</button\>
+\</div\>
+\</div\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4"\>Race Conditions & Starvation\</h3\>
+\<p class="text-gray-600 mb-4"\>These are other common concurrency issues. A race condition leads to corrupted data, while starvation prevents a thread from ever getting the resources it needs to run.\</p\>
+\<div class="space-y-4"\>
+\<div class="bg-white p-4 rounded-lg shadow"\>
+\<h4 class="font-bold text-lg text-red-600"\>Race Condition\</h4\>
+\<p class="text-gray-600 text-sm"\>Occurs when multiple threads access shared data and try to change it at the same time. The result depends on timing. \<br/\>\<strong\>Fix:\</strong\> Use \<code\>synchronized\</code\> blocks, \<code\>ReentrantLock\</code\>, or atomic variables to ensure operations are atomic.\</p\>
+\</div\>
+\<div class="bg-white p-4 rounded-lg shadow"\>
+\<h4 class="font-bold text-lg text-orange-600"\>Starvation\</h4\>
+\<p class="text-gray-600 text-sm"\>Occurs when a thread is perpetually denied access to a resource it needs. \<br/\>\<strong\>Fix:\</strong\> Use fair locks (e.g., \<code\>new ReentrantLock(true)\</code\>) to ensure a first-come, first-served policy.\</p\>
+\</div\>
+\</div\>
+\</div\>
+\</div\>`}, caseStudy: { content:`
+\<div class="space-y-12"\>
+\<div\>
+\<h3 class="text-2xl font-semibold mb-4 text-gray-800"\>Scenario: Asynchronous Order Processing\</h3\>
+\<p class="text-gray-600 mb-6"\>When a user places an order, we must not block the UI. The process—validating payment, updating inventory, and sending a confirmation email—should happen asynchronously. Java 8's \<code\>CompletableFuture\</code\> is perfect for orchestrating this complex, non-blocking workflow.\</p\>
+\<div class="code-block font-mono text-sm"\>
+
+\<pre\>\<code\>\<span class="code-type"\>public\</span\> \<span class="code-type"\>CompletableFuture\&lt;Void\&gt;\</span\> processOrder(\<span class="code-type"\>Order\</span\> order) {
+\<span class="code-keyword"\>return\</span\> \<span class="code-type"\>CompletableFuture\</span\>.supplyAsync(() -\> paymentService.charge(order))
+.thenAcceptAsync(paymentSuccess -\> {
+\<span class="code-keyword"\>if\</span\> (\!paymentSuccess) \<span class="code-keyword"\>throw new\</span\> \<span class="code-type"\>RuntimeException\</span\>(\<span class="code-string"\>"Payment failed"\</span\>);
+})
+.thenComposeAsync(v -\> inventoryService.updateStock(order.getItems()))
+.thenAcceptAsync(v -\> notificationService.sendConfirmation(order))
+.exceptionally(ex -\> {
+log.error(\<span class="code-string"\>"Order processing failed"\</span\>, ex);
+\<span class="code-keyword"\>return null\</span\>;
+});
+}\</code\>\</pre\>
+
+```
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-gray-800">Scenario: Product Data Modeling</h3>
+                        <p class="text-gray-600 mb-6">Product information is often fetched from a database and passed between services as Data Transfer Objects (DTOs). Using Java 16's <code>record</code> type simplifies this immensely. It provides an immutable data carrier with a fraction of the boilerplate code required for a traditional POJO.</p>
+                         <div class="code-block font-mono text-sm">
+```
+
+\<pre\>\<code\>\<span class="code-comment"\>// A product DTO with name, price, and a nested record for dimensions\</span\>
+\<span class="code-keyword"\>public record\</span\> \<span class="code-type"\>ProductDTO\</span\>(
+\<span class="code-type"\>String\</span\> sku,
+\<span class="code-type"\>String\</span\> name,
+\<span class="code-type"\>BigDecimal\</span\> price,
+\<span class="code-type"\>Dimensions\</span\> dimensions
+) {}
+
+\<span class="code-keyword"\>public record\</span\> \<span class="code-type"\>Dimensions\</span\>(\<span class="code-type"\>double\</span\> length, \<span class="code-type"\>double\</span\> width, \<span class="code-type"\>double\</span\> height) {}
+
+\<span class="code-comment"\>// Usage\</span\>
+\<span class="code-keyword"\>var\</span\> product = \<span class="code-keyword"\>new\</span\> \<span class="code-type"\>ProductDTO\</span\>(\<span class="code-string"\>"SKU123"\</span\>, \<span class="code-string"\>"Modern Lamp"\</span\>, ...);
+\<span class="code-type"\>System\</span\>.out.println(product.name()); \<span class="code-comment"\>// Clean, readable access\</span\>\</code\>\</pre\>
+
+```
+                        </div>
+                    </div>
+                    
+                     <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-gray-800">Scenario: Managing Concurrent Stock Updates</h3>
+                        <p class="text-gray-600 mb-6">Multiple users might try to buy the last few items of a popular product at the same time, leading to a race condition. To ensure stock levels are updated atomically and prevent overselling, we must use a robust synchronization mechanism. A <code>ReentrantLock</code> provides explicit control and safety.</p>
+                         <div class="code-block font-mono text-sm">
+```
+
+\<pre\>\<code\>\<span class="code-keyword"\>public class\</span\> \<span class="code-type"\>InventoryManager\</span\> {
+\<span class="code-keyword"\>private final\</span\> \<span class="code-type"\>Map\&lt;String, Integer\&gt;\</span\> stockLevels = \<span class="code-keyword"\>new\</span\> \<span class="code-type"\>ConcurrentHashMap\&lt;\&gt;\</span\>();
+\<span class="code-keyword"\>private final\</span\> \<span class="code-type"\>ReentrantLock\</span\> lock = \<span class="code-keyword"\>new\</span\> \<span class="code-type"\>ReentrantLock\</span\>();
+
+```
+&lt;span class=&quot;code-type&quot;&gt;public boolean&lt;/span&gt; purchaseItem(&lt;span class=&quot;code-type&quot;&gt;String&lt;/span&gt; sku, &lt;span class=&quot;code-type&quot;&gt;int&lt;/span&gt; quantity) {
+    lock.lock();
+    &lt;span class=&quot;code-keyword&quot;&gt;try&lt;/span&gt; {
+        &lt;span class=&quot;code-type&quot;&gt;int&lt;/span&gt; currentStock = stockLevels.getOrDefault(sku, &lt;span class=&quot;code-number&quot;&gt;0&lt;/span&gt;);
+        &lt;span class=&quot;code-keyword&quot;&gt;if&lt;/span&gt; (currentStock &gt;= quantity) {
+            stockLevels.put(sku, currentStock - quantity);
+            &lt;span class=&quot;code-keyword&quot;&gt;return true&lt;/span&gt;;
+        }
+        &lt;span class=&quot;code-keyword&quot;&gt;return false&lt;/span&gt;;
+    } &lt;span class=&quot;code-keyword&quot;&gt;finally&lt;/span&gt; {
+        lock.unlock(); &lt;span class=&quot;code-comment&quot;&gt;// Ensure lock is always released&lt;/span&gt;
+    }
+}
+```
+
+}\</code\>\</pre\>
+
+```
+                        </div>
+                    </div>
+                </div>`
+        }
+    };
+
+    let collectionsChart, gcChart;
+
+    function navigateTo(hash) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('nav-link-active'));
+        
+        const section = document.querySelector(hash);
+        if (section) {
+            section.classList.add('active', 'fade-in');
+        }
+        const link = document.querySelector(`.nav-link[href="${hash}"]`);
+        if (link) {
+            link.classList.add('nav-link-active');
+        }
+        
+        // Handle sub-tabs default activation
+        if (hash === '#core-concepts') {
+            switchTab('core-concepts', 'collections');
+        } else if (hash === '#concurrency') {
+            switchTab('concurrency', 'concurrency-basics');
+        } else if (hash === '#case-study') {
+            document.getElementById('case-study-content').innerHTML = appData.caseStudy.content;
+        } else {
+            // Default to timeline if hash is invalid or home
+             document.querySelector('#timeline').classList.add('active');
+             document.querySelector('.nav-link[href="#timeline"]').classList.add('nav-link-active');
+        }
+    }
+    
+    function switchTab(group, tabId) {
+        const contentContainer = document.getElementById(`${group}-content`);
+        const tabButtons = document.querySelectorAll(`[data-tab^="${group.split('-')[0]}"]`);
+        
+        tabButtons.forEach(btn => btn.classList.remove('tab-button-active', 'bg-blue-600', 'text-white'));
+        tabButtons.forEach(btn => btn.classList.add('text-gray-500', 'hover:bg-gray-200'));
+
+        const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
+        activeButton.classList.add('tab-button-active', 'bg-blue-600', 'text-white');
+        activeButton.classList.remove('text-gray-500', 'hover:bg-gray-200');
+
+        if (tabId === 'collections') {
+            contentContainer.innerHTML = appData.collections.content;
+            renderCollectionsChart();
+        } else if (tabId === 'memory') {
+            contentContainer.innerHTML = appData.memory.content;
+            renderGcChart();
+        } else if(tabId === 'concurrency-basics') {
+             contentContainer.innerHTML = appData.concurrencyBasics.content;
+        } else if(tabId === 'concurrency-challenges') {
+             contentContainer.innerHTML = appData.concurrencyChallenges.content;
+             document.getElementById('run-deadlock-btn').addEventListener('click', runDeadlockAnimation);
+        }
+        contentContainer.classList.add('fade-in');
+        setTimeout(() => contentContainer.classList.remove('fade-in'), 500);
+    }
+
+    function renderTimeline() {
+        const container = document.querySelector('#timeline .sm\\:grid');
+        let content = '';
+        appData.timeline.forEach((item, index) => {
+            const alignmentClass = index % 2 === 0 ? 'sm:justify-self-start sm:pr-8' : 'sm:justify-self-end sm:pl-8 sm:text-right';
+            const dotAlignment = index % 2 === 0 ? 'sm:left-1/2 sm:-ml-2' : 'sm:right-1/2 sm:-mr-2';
+            const ltsBadge = item.lts ? '<span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">LTS</span>' : '';
+
+            content += `
+                <div class="relative sm:w-1/2 ${alignmentClass}">
+                    <div class="timeline-item p-6 bg-white rounded-xl shadow-lg w-full" data-version="${item.version}">
+                        <div class="absolute w-4 h-4 bg-blue-500 rounded-full mt-2 -top-1.5 ${dotAlignment}"></div>
+                        <time class="block mb-2 text-sm font-semibold tracking-wide text-gray-500">${item.year}</time>
+                        <h3 class="text-xl font-bold text-gray-800">Java ${item.version} ${ltsBadge}</h3>
+                        <p class="text-gray-600">${item.title}</p>
+                    </div>
+                </div>
+            `;
+             if (index % 2 !== 0 && index < appData.timeline.length - 1) {
+                content += '<div></div>'; // Skip a grid cell on the left
+            }
+        });
+        container.innerHTML = content;
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const version = e.currentTarget.dataset.version;
+                displayFeatureDetails(version);
+            });
+        });
+    }
+    
+    function displayFeatureDetails(version) {
+        const versionData = appData.timeline.find(v => v.version === version);
+        const panel = document.getElementById('feature-details-panel');
+        if (!versionData) {
+            panel.innerHTML = '';
+            panel.classList.add('hidden');
+            return;
+        }
+        
+        let featuresHtml = versionData.features.map(feature => {
+            const hasDetails = appData.featureDetails[feature];
+            return `<li class="p-3 ${hasDetails ? 'bg-blue-50 hover:bg-blue-100 cursor-pointer rounded-lg' : 'bg-gray-50 rounded-lg'}" ${hasDetails ? `onclick="showCodeDetail('${feature}')"` : ''}>${feature}</li>`;
+        }).join('');
+
+        panel.innerHTML = `
+            <div class="bg-white rounded-xl shadow-xl p-6 lg:p-8 max-w-4xl mx-auto fade-in">
+                <h2 class="text-2xl font-bold mb-4">Key Features in Java ${version}</h2>
+                <ul class="space-y-2 text-gray-700">${featuresHtml}</ul>
+                <div id="code-detail-view" class="mt-6 hidden"></div>
+            </div>
+        `;
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function showCodeDetail(featureKey) {
+        const detail = appData.featureDetails[featureKey];
+        const view = document.getElementById('code-detail-view');
+        if (!detail) {
+            view.innerHTML = '';
+            view.classList.add('hidden');
+            return;
+        }
+        view.innerHTML = `
+            <div class="border-t border-gray-200 pt-6 fade-in">
+                <h4 class="font-bold text-lg text-blue-700">${featureKey}</h4>
+                <p class="text-gray-600 my-2">${detail.desc}</p>
+                <div class="code-block font-mono text-sm">
+                    <pre><code>${detail.code}</code></pre>
+                </div>
+            </div>
+        `;
+        view.classList.remove('hidden');
+    }
+
+    function renderCollectionsChart() {
+        const ctx = document.getElementById('collectionsChart').getContext('2d');
+        if (collectionsChart) collectionsChart.destroy();
+        collectionsChart = new Chart(ctx, {
+            type: 'bar',
+            data: appData.collections.chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Avg. Time Complexity Comparison' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                const value = context.parsed.y;
+                                label += appData.collections.tooltips[value.toString()] || 'N/A';
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                       ticks: {
+                            callback: function(value) {
+                               return appData.collections.tooltips[value.toString()] || '';
+                           }
+                       },
+                       title: { display: true, text: 'Complexity' }
+                    }
+                }
+            }
+        });
+    }
+    
+    function renderGcChart() {
+         const ctx = document.getElementById('gcChart').getContext('2d');
+         if (gcChart) gcChart.destroy();
+         gcChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Serial', 'Parallel', 'G1', 'ZGC'],
+                datasets: [
+                    { label: 'Throughput Focus', data: [5, 9, 7, 6], backgroundColor: 'rgba(54, 162, 235, 0.6)' },
+                    { label: 'Latency Focus (lower is better)', data: [2, 3, 6, 9], backgroundColor: 'rgba(75, 192, 192, 0.6)' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    title: { display: true, text: 'GC Characteristics (Illustrative)' },
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 10, title: {display: true, text: 'Relative Score'} }
+                }
+            }
+        });
+    }
+
+    function runDeadlockAnimation() {
+        const btn = document.getElementById('run-deadlock-btn');
+        btn.disabled = true;
+        btn.textContent = 'Running...';
+        
+        const threadA = document.getElementById('threadA');
+        const threadB = document.getElementById('threadB');
+        const res1 = document.getElementById('res1');
+        const res2 = document.getElementById('res2');
+        const status = document.getElementById('deadlock-status');
+
+        // Reset
+        res1.style.backgroundColor = '#374151';
+        res2.style.backgroundColor = '#374151';
+        threadA.style.borderColor = '';
+        threadB.style.borderColor = '';
+        status.textContent = '';
+        status.className = 'mt-4 text-center font-semibold h-6';
+
+        setTimeout(() => {
+            status.textContent = 'Thread A locks Resource 1';
+            status.classList.add('text-blue-600');
+            res1.style.backgroundColor = '#60a5fa'; // Blue
+        }, 500);
+
+         setTimeout(() => {
+            status.textContent = 'Thread B locks Resource 2';
+            status.classList.add('text-red-600');
+            res2.style.backgroundColor = '#f87171'; // Red
+        }, 1000);
+
+        setTimeout(() => {
+            status.textContent = 'Thread A tries to lock Resource 2 (held by B)';
+            status.className = 'mt-4 text-center font-semibold h-6 text-blue-600';
+        }, 1800);
+
+        setTimeout(() => {
+            status.textContent = 'Thread B tries to lock Resource 1 (held by A)';
+            status.className = 'mt-4 text-center font-semibold h-6 text-red-600';
+        }, 2600);
+        
+        setTimeout(() => {
+            status.textContent = 'DEADLOCK! Circular wait detected.';
+            status.className = 'mt-4 text-center font-bold h-6 text-xl text-red-700 animate-pulse';
+            btn.disabled = false;
+            btn.textContent = 'Run Simulation Again';
+        }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo(e.currentTarget.getAttribute('href'));
+                
+                const mobileMenu = document.getElementById('mobile-menu');
+                if(!mobileMenu.classList.contains('hidden')) {
+                     mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+        
+        document.querySelectorAll('[data-tab]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const group = e.currentTarget.parentElement.nextElementSibling.id.replace('-content', '');
+                switchTab(group, e.currentTarget.dataset.tab);
+            });
+        });
+        
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        mobileMenuButton.addEventListener('click', () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        renderTimeline();
+
+        const initialHash = window.location.hash || '#timeline';
+        navigateTo(initialHash);
+    });
+    
+    // Make this function global so inline onclicks can find it
+    window.showCodeDetail = showCodeDetail;
+
+</script>
+
+\</body\>
+\</html\>
